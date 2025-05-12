@@ -1,0 +1,10 @@
+{
+  "name": "usermanager-client-only",
+  "version": "3.3",
+  "description": "Der Userman als CO-Version / 13.04.2022",
+  "author": "Manuel Groh",
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "@fortawesome/fontawesome-free": "^6.5.2"
+  }
+}

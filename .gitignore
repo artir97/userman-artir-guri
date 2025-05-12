@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+dist/
+build/
+npm-debug.log*
+
+# Env
+.env
+
+# VS Code
+.vscode/
+
+# JetBrains IDEs
+.idea/
