@@ -1,18 +1,4 @@
-/**
- * Definition der User-Klasse bestehend aus den Attributen Vor- und Zunamen, Emailadresse sowie Passwort.
- */
-class User {
-    email;
-    fName;
-    lName;
-    password;
-    constructor(fName, lName, email, password) {
-        this.fName = fName;
-        this.lName = lName;
-        this.email = email;
-        this.password = password;
-    }
-}
+const BASE_URL = 'http://userman.mni.thm.de';
 /**
  * Definition der globalen Variablen
  * Hier sind es die benötigten HTML-Elemente und das User-Array.
@@ -25,7 +11,6 @@ let inputPass;
 let inputEditFName;
 let inputEditLName;
 let tableUser;
-const users = new Map();
 /**
  * Die Callback-Funktion initialisiert nach dem Laden des DOMs die globalen Variablen
  * und registriert die Eventhandler.
@@ -54,6 +39,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+// currently called in the body with an onload
+async function fetchUsers() {
+    const res = await fetch(`${BASE_URL}/user`);
+    if (res.ok) {
+        const userMails = await res.json();
+        const usersWithInfo = [];
+        for (const user of userMails) {
+            const res = await fetch(`${BASE_URL}/user/${user}`);
+            const completeUser = await res.json();
+            usersWithInfo.push(completeUser);
+        }
+        renderUserList(usersWithInfo);
+    }
+}
 /**
  * Die Funktion liest die benötigten Werte aus den Inputfeldern.
  * Es wird ein neuer User erzeugt und der Map hinzugefügt.
@@ -110,14 +109,14 @@ function deleteUser(target) {
 /**
  * Löscht die Inhalte der Tabelle und baut sie auf Grundlage des Arrays neu auf.
  */
-function renderUserList() {
+function renderUserList(userList) {
     tableUser.innerHTML = "";
-    for (const u of users.values()) {
+    for (const u of userList.values()) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${u.email}</td>
-            <td>${u.lName}</td>
-            <td>${u.fName}</td>
+            <td>${u.lastName}</td>
+            <td>${u.firstName}</td>
 
             <td>
                  <button class="btn btn-primary delete" data-email="${u.email}"><i class="fas fa-trash"></i></button>

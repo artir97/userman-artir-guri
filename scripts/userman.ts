@@ -1,20 +1,11 @@
-/**
- * Definition der User-Klasse bestehend aus den Attributen Vor- und Zunamen, Emailadresse sowie Passwort.
- */
-class User {
-    email: string;
-    fName: string;
-    lName: string;
-    password: string;
+const BASE_URL: string = 'http://userman.mni.thm.de';
 
-    constructor(fName: string, lName: string, email: string, password: string) {
-        this.fName = fName;
-        this.lName = lName;
-        this.email = email;
-        this.password = password;
-    }
+interface User {
+    email: string,
+    firstName: string,
+    lastName: string,
+    password: string
 }
-
 /**
  * Definition der globalen Variablen
  * Hier sind es die benötigten HTML-Elemente und das User-Array.
@@ -27,7 +18,6 @@ let inputPass: HTMLInputElement;
 let inputEditFName: HTMLInputElement;
 let inputEditLName: HTMLInputElement;
 let tableUser: HTMLElement;
-const users: Map<string, User> = new Map<string, User>();
 
 /**
  * Die Callback-Funktion initialisiert nach dem Laden des DOMs die globalen Variablen
@@ -57,6 +47,22 @@ document.addEventListener("DOMContentLoaded", () => { //Soll das noch mit DOMCon
         }
     });
 });
+
+// currently called in the body with an onload
+async function fetchUsers(): Promise<void> {
+    const res: Response = await fetch(`${BASE_URL}/user`);
+    if (res.ok) {
+        const userMails = await res.json();
+        const usersWithInfo: User[] = [];
+
+        for (const user of userMails) {
+            const res: Response = await fetch(`${BASE_URL}/user/${user}`);
+            const completeUser = await res.json();
+            usersWithInfo.push(completeUser);
+        }
+        renderUserList(usersWithInfo);
+    }
+}
 
 /**
  * Die Funktion liest die benötigten Werte aus den Inputfeldern.
@@ -123,15 +129,15 @@ function deleteUser(target: HTMLElement) {
 /**
  * Löscht die Inhalte der Tabelle und baut sie auf Grundlage des Arrays neu auf.
  */
-function renderUserList() {
+function renderUserList(userList) {
     tableUser.innerHTML = "";
 
-    for (const u of users.values()) {
+    for (const u of userList.values()) {
         const tr: HTMLElement = document.createElement("tr");
         tr.innerHTML = `
             <td>${u.email}</td>
-            <td>${u.lName}</td>
-            <td>${u.fName}</td>
+            <td>${u.lastName}</td>
+            <td>${u.firstName}</td>
 
             <td>
                  <button class="btn btn-primary delete" data-email="${u.email}"><i class="fas fa-trash"></i></button>
