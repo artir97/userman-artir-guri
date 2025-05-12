@@ -2,6 +2,10 @@
  * Definition der User-Klasse bestehend aus den Attributen Vor- und Zunamen, Emailadresse sowie Passwort.
  */
 class User {
+    email;
+    fName;
+    lName;
+    password;
     constructor(fName, lName, email, password) {
         this.fName = fName;
         this.lName = lName;
