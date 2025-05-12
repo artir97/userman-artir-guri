@@ -1,10 +1,10 @@
 {
-  "name": "usermanager-client-only",
-  "version": "3.3",
-  "description": "Der Userman als CO-Version / 13.04.2022",
-  "author": "Manuel Groh",
+  "name": "usermanager-client-server",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.5.2",
+    "@types/express": "^5.0.1",
     "bootstrap": "^5.3.3",
-    "@fortawesome/fontawesome-free": "^6.5.2"
+    "express": "^5.1.0",
+    "mysql2": "^3.14.1"
   }
 }
