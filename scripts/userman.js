@@ -4,8 +4,8 @@ const BASE_URL = 'http://userman.mni.thm.de';
  * Hier sind es die benötigten HTML-Elemente und das User-Array.
  */
 let formEdit;
-let inputFName;
-let inputLName;
+let inputFirstName;
+let inputLastName;
 let inputEmail;
 let inputPass;
 let inputEditFName;
@@ -18,8 +18,8 @@ let tableUser;
 document.addEventListener("DOMContentLoaded", () => {
     tableUser = document.querySelector("#tableUser");
     formEdit = document.querySelector("#formEdit");
-    inputFName = document.querySelector("#formInput [name='firstname']");
-    inputLName = document.querySelector("#formInput [name='lastname']");
+    inputFirstName = document.querySelector("#formInput [name='firstname']");
+    inputLastName = document.querySelector("#formInput [name='lastname']");
     inputEmail = document.querySelector("#formInput [name='email']");
     inputPass = document.querySelector("#formInput [name='password']");
     inputEditFName = document.querySelector("#formEdit [name='firstname']");
@@ -58,14 +58,38 @@ async function fetchUsers() {
  * Es wird ein neuer User erzeugt und der Map hinzugefügt.
  * @param event zum Unterdrücken des Standardverhaltens (Neuladen der Seite)
  */
-function addUser(event) {
+async function addUser(event) {
     event.preventDefault();
-    const fName = inputFName.value;
-    const lName = inputLName.value;
+    const firstName = inputFirstName.value;
+    const lastName = inputLastName.value;
     const email = inputEmail.value;
     const password = inputPass.value;
-    users.set(email, new User(fName, lName, email, password));
-    renderUserList();
+    try {
+        const res = await fetch(`${BASE_URL}/user`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                password: password
+            })
+        });
+        if (res.ok) {
+            const createdUser = await res.json();
+            console.log("User created:", createdUser);
+            inputFirstName.value = "";
+            inputLastName.value = "";
+            inputEmail.value = "";
+            inputPass.value = "";
+            await fetchUsers();
+        }
+    }
+    catch (err) {
+        console.log('Network or unexpected error: ', err);
+    }
 }
 /**
  * Die Funktion wird zu Beginn des Editiervorgangs aufgerufen.

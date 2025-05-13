@@ -11,8 +11,8 @@ interface User {
  * Hier sind es die benötigten HTML-Elemente und das User-Array.
  */
 let formEdit: HTMLFormElement;
-let inputFName: HTMLInputElement;
-let inputLName: HTMLInputElement;
+let inputFirstName: HTMLInputElement;
+let inputLastName: HTMLInputElement;
 let inputEmail: HTMLInputElement;
 let inputPass: HTMLInputElement;
 let inputEditFName: HTMLInputElement;
@@ -26,8 +26,8 @@ let tableUser: HTMLElement;
 document.addEventListener("DOMContentLoaded", () => { //Soll das noch mit DOMContentLoaded gemacht werden, oder mit defer im HTML-Head
     tableUser = document.querySelector("#tableUser");
     formEdit = document.querySelector("#formEdit");
-    inputFName = document.querySelector("#formInput [name='firstname']");
-    inputLName = document.querySelector("#formInput [name='lastname']");
+    inputFirstName = document.querySelector("#formInput [name='firstname']");
+    inputLastName = document.querySelector("#formInput [name='lastname']");
     inputEmail = document.querySelector("#formInput [name='email']");
     inputPass = document.querySelector("#formInput [name='password']");
     inputEditFName = document.querySelector("#formEdit [name='firstname']");
@@ -69,16 +69,41 @@ async function fetchUsers(): Promise<void> {
  * Es wird ein neuer User erzeugt und der Map hinzugefügt.
  * @param event zum Unterdrücken des Standardverhaltens (Neuladen der Seite)
  */
-function addUser(event: Event): void {
+async function addUser(event: Event): Promise<void> {
     event.preventDefault();
 
-    const fName: string = inputFName.value;
-    const lName: string = inputLName.value;
+    const firstName: string = inputFirstName.value;
+    const lastName: string = inputLastName.value;
     const email: string = inputEmail.value;
     const password: string = inputPass.value;
 
-    users.set(email, new User(fName, lName, email, password));
-    renderUserList();
+    try {
+        const res: Response = await fetch(`${BASE_URL}/user`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                password: password
+            })
+        });
+        if(res.ok) {
+            const createdUser = await res.json();
+            console.log("User created:", createdUser);
+
+            inputFirstName.value = "";
+            inputLastName.value = "";
+            inputEmail.value = "";
+            inputPass.value = "";
+
+            await fetchUsers();
+        }
+    } catch (err) {
+        console.log('Network or unexpected error: ', err);
+    }
 }
 
 /**
