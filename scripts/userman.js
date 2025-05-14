@@ -1,9 +1,6 @@
+// warning due to not having a https link - can't do anything about it
 const BASE_URL = 'http://userman.mni.thm.de';
 let users = new Map();
-/**
- * Definition der globalen Variablen
- * Hier sind es die benötigten HTML-Elemente und das User-Array.
- */
 let formEdit;
 let inputFirstName;
 let inputLastName;
@@ -12,54 +9,47 @@ let inputPass;
 let inputEditFName;
 let inputEditLName;
 let tableUser;
-/**
- * Die Callback-Funktion initialisiert nach dem Laden des DOMs die globalen Variablen
- * und registriert die Eventhandler.
- */
-document.addEventListener("DOMContentLoaded", () => {
-    tableUser = document.querySelector("#tableUser");
-    formEdit = document.querySelector("#formEdit");
-    inputFirstName = document.querySelector("#formInput [name='firstname']");
-    inputLastName = document.querySelector("#formInput [name='lastname']");
-    inputEmail = document.querySelector("#formInput [name='email']");
-    inputPass = document.querySelector("#formInput [name='password']");
-    inputEditFName = document.querySelector("#formEdit [name='firstname']");
-    inputEditLName = document.querySelector("#formEdit [name='lastname']");
-    document.querySelector("#formInput").addEventListener("submit", addUser);
-    formEdit.addEventListener("submit", editUser);
-    document.querySelector("#editClose").addEventListener("click", stopEdit);
-    tableUser.addEventListener("click", (event) => {
-        // Da das Klickziel die Tabelle an sich ist, muss das genaue Ziel im DOM noch bestimmt werden
-        let target = event.target;
-        target = target.closest("button");
-        if (target.matches(".delete")) {
-            deleteUser(target);
-        }
-        else if (target.matches(".edit")) {
-            startEdit(target);
-        }
-    });
+tableUser = document.querySelector("#tableUser");
+formEdit = document.querySelector("#formEdit");
+inputFirstName = document.querySelector("#formInput [name='firstname']");
+inputLastName = document.querySelector("#formInput [name='lastname']");
+inputEmail = document.querySelector("#formInput [name='email']");
+inputPass = document.querySelector("#formInput [name='password']");
+inputEditFName = document.querySelector("#formEdit [name='firstname']");
+inputEditLName = document.querySelector("#formEdit [name='lastname']");
+document.querySelector("#formInput").addEventListener("submit", addUser);
+formEdit.addEventListener("submit", editUser);
+document.querySelector("#editClose").addEventListener("click", stopEdit);
+tableUser.addEventListener("click", (event) => {
+    // Da das Klickziel die Tabelle an sich ist, muss das genaue Ziel im DOM noch bestimmt werden
+    let target = event.target;
+    target = target.closest("button");
+    if (target.matches(".delete")) {
+        deleteUser(target);
+    }
+    else if (target.matches(".edit")) {
+        startEdit(target);
+    }
+});
+init().catch((err) => {
+    console.error('init failed, no user loaded: ', err);
 });
 // currently called in the body with an onload
+async function init() {
+    await fetchUsers();
+}
 async function fetchUsers() {
     const res = await fetch(`${BASE_URL}/user`);
     if (res.ok) {
         const userMails = await res.json();
-        const usersWithInfo = [];
         for (const user of userMails) {
             const res = await fetch(`${BASE_URL}/user/${user}`);
             const completeUser = await res.json();
             users.set(completeUser.email, completeUser);
-            usersWithInfo.push(completeUser);
         }
         renderUserList(users);
     }
 }
-/**
- * Die Funktion liest die benötigten Werte aus den Inputfeldern.
- * Es wird ein neuer User erzeugt und der Map hinzugefügt.
- * @param event zum Unterdrücken des Standardverhaltens (Neuladen der Seite)
- */
 async function addUser(event) {
     event.preventDefault();
     const firstName = inputFirstName.value;
@@ -82,10 +72,7 @@ async function addUser(event) {
         if (res.ok) {
             const createdUser = await res.json();
             users.set(createdUser.email, createdUser);
-            inputFirstName.value = "";
-            inputLastName.value = "";
-            inputEmail.value = "";
-            inputPass.value = "";
+            resetInputs();
             await fetchUsers();
         }
     }
@@ -93,11 +80,12 @@ async function addUser(event) {
         console.log('Network or unexpected error: ', err);
     }
 }
-/**
- * Die Funktion wird zu Beginn des Editiervorgangs aufgerufen.
- * Sie überträgt die Daten des aktuellen Elements in den Editierbereich und zeigt ihn an.
- * @param target das angeklickte Element
- */
+function resetInputs() {
+    inputFirstName.value = "";
+    inputLastName.value = "";
+    inputEmail.value = "";
+    inputPass.value = "";
+}
 function startEdit(target) {
     const email = target.dataset.email;
     const user = users.get(email);
@@ -109,11 +97,6 @@ function startEdit(target) {
 function stopEdit() {
     formEdit.style.display = "none";
 }
-/**
- * Die Funktion wird aufgerufen, wenn das Editieren quittiert wird.
- * Die benötigten Felder werden ausgelesen und das Formular ausgeblendet.
- * @param event zum Unterdrücken des Standardverhaltens (Neuladen der Seite)
- */
 function editUser(event) {
     event.preventDefault();
     const email = formEdit.dataset.email;
@@ -123,18 +106,11 @@ function editUser(event) {
     formEdit.style.display = "none";
     renderUserList(users);
 }
-/**
- * Entfernt das aktuelle Element aus dem Array.
- * @param target das angeklickte Element
- */
 function deleteUser(target) {
     const email = target.dataset.email;
     users.delete(email);
     renderUserList(users);
 }
-/**
- * Löscht die Inhalte der Tabelle und baut sie auf Grundlage des Arrays neu auf.
- */
 function renderUserList(userList) {
     tableUser.innerHTML = "";
     for (const u of userList.values()) {
