@@ -1,4 +1,5 @@
 const BASE_URL = 'http://userman.mni.thm.de';
+let users = new Map();
 /**
  * Definition der globalen Variablen
  * Hier sind es die benötigten HTML-Elemente und das User-Array.
@@ -48,9 +49,10 @@ async function fetchUsers() {
         for (const user of userMails) {
             const res = await fetch(`${BASE_URL}/user/${user}`);
             const completeUser = await res.json();
+            users.set(completeUser.email, completeUser);
             usersWithInfo.push(completeUser);
         }
-        renderUserList(usersWithInfo);
+        renderUserList(users);
     }
 }
 /**
@@ -79,7 +81,7 @@ async function addUser(event) {
         });
         if (res.ok) {
             const createdUser = await res.json();
-            console.log("User created:", createdUser);
+            users.set(createdUser.email, createdUser);
             inputFirstName.value = "";
             inputLastName.value = "";
             inputEmail.value = "";
@@ -99,8 +101,8 @@ async function addUser(event) {
 function startEdit(target) {
     const email = target.dataset.email;
     const user = users.get(email);
-    inputEditFName.value = user.fName;
-    inputEditLName.value = user.lName;
+    inputEditFName.value = user.firstName;
+    inputEditLName.value = user.lastName;
     formEdit.dataset.email = email;
     formEdit.style.display = "block";
 }
@@ -116,10 +118,10 @@ function editUser(event) {
     event.preventDefault();
     const email = formEdit.dataset.email;
     const user = users.get(email);
-    user.fName = inputEditFName.value;
-    user.lName = inputEditLName.value;
+    user.firstName = inputEditFName.value;
+    user.lastName = inputEditLName.value;
     formEdit.style.display = "none";
-    renderUserList();
+    renderUserList(users);
 }
 /**
  * Entfernt das aktuelle Element aus dem Array.
@@ -128,7 +130,7 @@ function editUser(event) {
 function deleteUser(target) {
     const email = target.dataset.email;
     users.delete(email);
-    renderUserList();
+    renderUserList(users);
 }
 /**
  * Löscht die Inhalte der Tabelle und baut sie auf Grundlage des Arrays neu auf.

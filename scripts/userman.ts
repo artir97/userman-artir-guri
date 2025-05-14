@@ -6,6 +6,8 @@ interface User {
     lastName: string,
     password: string
 }
+
+let users: Map<string, User> = new Map();
 /**
  * Definition der globalen Variablen
  * Hier sind es die benötigten HTML-Elemente und das User-Array.
@@ -58,9 +60,10 @@ async function fetchUsers(): Promise<void> {
         for (const user of userMails) {
             const res: Response = await fetch(`${BASE_URL}/user/${user}`);
             const completeUser = await res.json();
+            users.set(completeUser.email, completeUser);
             usersWithInfo.push(completeUser);
         }
-        renderUserList(usersWithInfo);
+        renderUserList(users);
     }
 }
 
@@ -92,7 +95,7 @@ async function addUser(event: Event): Promise<void> {
         });
         if(res.ok) {
             const createdUser = await res.json();
-            console.log("User created:", createdUser);
+            users.set(createdUser.email, createdUser);
 
             inputFirstName.value = "";
             inputLastName.value = "";
@@ -115,8 +118,8 @@ function startEdit(target: HTMLElement) {
     const email: string = target.dataset.email;
     const user: User = users.get(email);
 
-    inputEditFName.value = user.fName;
-    inputEditLName.value = user.lName;
+    inputEditFName.value = user.firstName;
+    inputEditLName.value = user.lastName;
     formEdit.dataset.email = email;
     formEdit.style.display = "block";
 }
@@ -135,10 +138,10 @@ function editUser(event: Event) {
     const email: string = formEdit.dataset.email;
     const user: User = users.get(email);
 
-    user.fName = inputEditFName.value;
-    user.lName = inputEditLName.value;
+    user.firstName = inputEditFName.value;
+    user.lastName = inputEditLName.value;
     formEdit.style.display = "none";
-    renderUserList();
+    renderUserList(users);
 }
 
 /**
@@ -148,7 +151,7 @@ function editUser(event: Event) {
 function deleteUser(target: HTMLElement) {
     const email: string = target.dataset.email;
     users.delete(email);
-    renderUserList();
+    renderUserList(users);
 }
 
 /**
