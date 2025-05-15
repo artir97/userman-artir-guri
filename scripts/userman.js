@@ -1,5 +1,4 @@
-// warning due to not having a https link - can't do anything about it
-const BASE_URL = 'http://userman.mni.thm.de';
+const BASE_URL = 'https://userman.mni.thm.de';
 let users = new Map();
 let formEdit;
 let inputFirstName;

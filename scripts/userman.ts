@@ -1,5 +1,4 @@
-// warning due to not having a https link - can't do anything about it
-const BASE_URL: string = 'http://userman.mni.thm.de';
+const BASE_URL: string = 'https://userman.mni.thm.de';
 
 interface User {
     email: string,
